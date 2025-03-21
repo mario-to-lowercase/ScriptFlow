@@ -1,5 +1,8 @@
 # ScriptFlow  ![GitHub Repo stars](https://img.shields.io/github/stars/mario-to-lowercase/scriptflow)
 
+![Dashboard Preview](https://raw.githubusercontent.com/mario-to-lowercase/ScriptFlow/refs/heads/master/assets/home.png)
+
+
 **ScriptFlow** is a simple UI-based tool that allows you to create and manage jobs (cron jobs) that execute provided scripts based on a given interval. Built with Streamlit, ScriptFlow offers an intuitive interface for scheduling and monitoring your scripts with ease.
 
 ---
