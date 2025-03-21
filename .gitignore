@@ -1,0 +1,8 @@
+__pycache__/
+.notes/
+data/
+scripts/
+
+# System Files
+.DS_Store
+Thumbs.db
