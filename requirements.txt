@@ -16,7 +16,7 @@ chacha20poly1305-reuseable==0.3.0
 charset-normalizer==3.2.0
 click==8.1.8
 contourpy==1.1.1
-cryptography==41.0.2
+cryptography==44.0.1
 cycler==0.11.0
 decorator==5.1.1
 deepdiff==6.5.0
