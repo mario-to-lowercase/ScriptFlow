@@ -35,6 +35,31 @@
 
 ---
 
+## 📁 Project Structure
+
+ScriptFlow follows a modular organization for better maintainability and scalability:
+
+### Core Components
+
+* `app.py` - Entry point of the application that initializes the Streamlit interface and manages the overall workflow
+
+### Directories
+
+* `/pages` - Contains individual Streamlit pages for different views and functionality
+  * Handles UI components for job management, template creation, and execution monitoring
+  
+* `/scripts` - Repository for all executable job scripts
+  * Stores user-created scripts that get executed according to schedule
+  
+* `/templates` - Collection of reusable job templates
+  * Pre-defined script templates that can be used as starting points for new jobs
+  
+* `/data` - Storage for application state and historical information
+  * `jobs.json` - Maintains the current configuration of all created jobs
+  * `history.json` - Records comprehensive execution history with timestamps and results
+
+---
+
 ## 🛠️ Installation  
 
 1. Clone the repository:  
@@ -75,11 +100,9 @@ ScriptFlow's interface allows you to easily configure your script execution pref
 
 ## 🍓 Raspberry Pi Setup  
 
-Ensure ScriptFlow starts automatically when your Raspberry Pi boots up with these simple steps:
+Ensure ScriptFlow starts automatically when your Raspberry Pi boots up using `systemd` with these simple steps:
 
-### 🖥️ Using `systemd`
-
-1. Create a service file:  
+1. Create a service file:
    ```bash
    sudo nano /etc/systemd/system/scriptflow.service
    ```
