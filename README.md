@@ -2,7 +2,6 @@
 
 ![Dashboard Preview](https://raw.githubusercontent.com/mario-to-lowercase/ScriptFlow/refs/heads/master/assets/home.png)
 
-
 **ScriptFlow** is a simple UI-based tool that allows you to create and manage jobs (cron jobs) that execute provided scripts based on a given interval. Built with Streamlit, ScriptFlow offers an intuitive interface for scheduling and monitoring your scripts with ease.
 
 ---
@@ -23,6 +22,13 @@
 
 - **🚀 Lightweight and Efficient**  
   Small footprint with powerful scheduling capabilities.
+
+---
+
+## 🛠️ Upcoming Features (Todo)  
+
+- **API Integration**: Trigger scripts via HTTP requests.
+- **Advanced Scheduling**: Support for more complex scheduling patterns.
 
 ---
 
@@ -118,13 +124,6 @@ Ensure ScriptFlow starts automatically when your Raspberry Pi boots up with thes
 
 ---
 
-## 🛠️ Upcoming Features (Todo)  
-
-- **API Integration**: Trigger scripts via HTTP requests.
-- **Advanced Scheduling**: Support for more complex scheduling patterns.
-
----
-
 ## 🤝 Contributing  
 
 We welcome contributions to improve ScriptFlow! Follow these steps:  
@@ -148,4 +147,4 @@ We welcome contributions to improve ScriptFlow! Follow these steps:
 
 ## 📜 License  
 
-ScriptFlow is released under the [Apache 2.0 License](https://github.com/mario-to-lowercase/ScriptFlow/blob/master/LICENSE).
+ScriptFlow is released under the [MIT License](https://github.com/mario-to-lowercase/ScriptFlow/blob/master/LICENSE).
