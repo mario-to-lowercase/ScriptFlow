@@ -20,6 +20,9 @@
 - **📊 Log Tracking**  
   Monitor script execution results and track performance over time.
 
+- **📝 Template Management**
+   Create, view, and manage reusable templates for your jobs.
+
 - **🚀 Lightweight and Efficient**  
   Small footprint with powerful scheduling capabilities.
 

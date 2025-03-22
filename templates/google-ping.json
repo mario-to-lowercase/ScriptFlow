@@ -1,0 +1,8 @@
+{
+    "name": "Ping Google.com",
+    "script-type": "py",
+    "inteval": 5,
+    "intertval-unit": "hours",
+    "script-content": "import os\nimport platform\ndef ping_google():\n    # Determine the correct ping command based on the OS\n    param = \"-n 1\" if platform.system().lower() == \"windows\" else \"-c 1\"\n    # Run the ping command\n    response = os.system(f\"ping {param} google.com\")\n    # Check the response\n    if response == 0:\n        print(\"Google is reachable.\")\n    else:\n        print(\"Google is not reachable.\")\nif __name__ == \"__main__\":\n    ping_google()",
+    "enabled": false
+}
