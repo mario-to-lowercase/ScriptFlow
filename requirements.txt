@@ -28,7 +28,7 @@ fonttools==4.42.1
 frozenlist==1.4.0
 gitdb==4.0.12
 GitPython==3.1.44
-idna==3.4
+idna==3.7
 ifaddr==0.2.0
 imageio==2.31.4
 imutils==0.5.4
