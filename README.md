@@ -1,8 +1,8 @@
-# ScriptFlow  ![GitHub Repo stars](https://img.shields.io/github/stars/mario-to-lowercase/scriptflow)
+# TaskFlow  ![GitHub Repo stars](https://img.shields.io/github/stars/mario-to-lowercase/TaskFlow)
 
-![Dashboard Preview](https://raw.githubusercontent.com/mario-to-lowercase/ScriptFlow/refs/heads/master/assets/home.png)
+![Dashboard Preview](https://raw.githubusercontent.com/mario-to-lowercase/TaskFlow/refs/heads/master/assets/home.png)
 
-**ScriptFlow** is a simple UI-based tool that allows you to create and manage jobs (cron jobs) that execute provided scripts based on a given interval. Built with Streamlit, ScriptFlow offers an intuitive interface for scheduling and monitoring your scripts with ease.
+**TaskFlow** is a simple UI-based tool that allows you to create and manage jobs (cron jobs) that execute provided scripts based on a given interval. Built with Streamlit, TaskFlow offers an intuitive interface for scheduling and monitoring your scripts with ease.
 
 ---
 
@@ -37,7 +37,7 @@
 
 ## 📁 Project Structure
 
-ScriptFlow follows a modular organization for better maintainability and scalability:
+TaskFlow follows a modular organization for better maintainability and scalability:
 
 ### Core Components
 
@@ -64,8 +64,8 @@ ScriptFlow follows a modular organization for better maintainability and scalabi
 
 1. Clone the repository:  
    ```bash
-   git clone https://github.com/mario-to-lowercase/ScriptFlow.git
-   cd ScriptFlow
+   git clone https://github.com/mario-to-lowercase/TaskFlow.git
+   cd TaskFlow
    ```
 2. Install dependencies:  
    ```bash
@@ -90,7 +90,7 @@ ScriptFlow follows a modular organization for better maintainability and scalabi
 
 ## 🛠️ Configuration
 
-ScriptFlow's interface allows you to easily configure your script execution preferences:
+TaskFlow's interface allows you to easily configure your script execution preferences:
 
 - Define script execution intervals directly via the UI
 - Manage active jobs and disable them when needed
@@ -100,22 +100,22 @@ ScriptFlow's interface allows you to easily configure your script execution pref
 
 ## 🍓 Raspberry Pi Setup  
 
-Ensure ScriptFlow starts automatically when your Raspberry Pi boots up using `systemd` with these simple steps:
+Ensure TaskFlow starts automatically when your Raspberry Pi boots up using `systemd` with these simple steps:
 
 1. Create a service file:
    ```bash
-   sudo nano /etc/systemd/system/scriptflow.service
+   sudo nano /etc/systemd/system/taskflow.service
    ```
 
 2. Add the following content:  
    ```ini
    [Unit]
-   Description=ScriptFlow
+   Description=TaskFlow
    After=network.target
 
    [Service]
-   ExecStart=/usr/bin/python3 /home/pi/ScriptFlow/app.py
-   WorkingDirectory=/home/pi/ScriptFlow
+   ExecStart=/usr/bin/python3 /home/pi/TaskFlow/app.py
+   WorkingDirectory=/home/pi/TaskFlow
    Restart=always
    User=pi
 
@@ -130,29 +130,29 @@ Ensure ScriptFlow starts automatically when your Raspberry Pi boots up using `sy
 
 4. Enable the service to start on boot:  
    ```bash
-   sudo systemctl enable scriptflow
+   sudo systemctl enable taskflow
    ```
 
 5. Start the service:  
    ```bash
-   sudo systemctl start scriptflow
+   sudo systemctl start taskflow
    ```
 
 6. Stop the service:  
    ```bash
-   sudo systemctl stop scriptflow
+   sudo systemctl stop taskflow
    ```
 
 7. Check the status:  
    ```bash
-   sudo systemctl status scriptflow
+   sudo systemctl status taskflow
    ```
 
 ---
 
 ## 🤝 Contributing  
 
-We welcome contributions to improve ScriptFlow! Follow these steps:  
+We welcome contributions to improve TaskFlow! Follow these steps:  
 
 1. Fork the repository.  
 2. Create a new branch:  
@@ -173,4 +173,4 @@ We welcome contributions to improve ScriptFlow! Follow these steps:
 
 ## 📜 License  
 
-ScriptFlow is released under the [MIT License](https://github.com/mario-to-lowercase/ScriptFlow/blob/master/LICENSE).
+TaskFlow is released under the [MIT License](https://github.com/mario-to-lowercase/TaskFlow/blob/master/LICENSE).
