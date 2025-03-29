@@ -26,12 +26,20 @@
 - **🚀 Lightweight and Efficient**  
   Small footprint with powerful scheduling capabilities.
 
+- **🔄 Command-Line Arguments**
+  Define default arguments and override them during manual execution.
+
+- **🎯 Dedicated Run Interface**
+  Execute any job on-demand with custom arguments through a dedicated page.
+
 ---
 
 ## 🛠️ Upcoming Features (Todo)  
 
 - **API Integration**: Trigger scripts via HTTP requests.
 - **Advanced Scheduling**: Support for more complex scheduling patterns.
+- **Translations**: Support for multiple languages in the user interface.
+- **Webhook Management**: Create, execute and manage webhooks for integration with external services.
 
 ---
 
@@ -41,12 +49,16 @@ TaskFlow follows a modular organization for better maintainability and scalabili
 
 ### Core Components
 
-* `app.py` - Entry point of the application that initializes the Streamlit interface and manages the overall workflow
+* `app.py` - Entry point of the application that initializes the Streamlit interface and manages the overall workflow, now with argument handling capabilities
 
 ### Directories
 
 * `/pages` - Contains individual Streamlit pages for different views and functionality
-  * Handles UI components for job management, template creation, and execution monitoring
+  * `1_jobs.py` - Displays and manages job listings with argument support
+  * `2_add_job.py` - Form for creating new jobs with default arguments
+  * `3_history.py` - Execution history with argument tracking
+  * `4_templates.py` - Template management with default argument support
+  * `5_run.py` - Dedicated page for executing jobs with custom arguments
   
 * `/scripts` - Repository for all executable job scripts
   * Stores user-created scripts that get executed according to schedule
@@ -55,8 +67,8 @@ TaskFlow follows a modular organization for better maintainability and scalabili
   * Pre-defined script templates that can be used as starting points for new jobs
   
 * `/data` - Storage for application state and historical information
-  * `jobs.json` - Maintains the current configuration of all created jobs
-  * `history.json` - Records comprehensive execution history with timestamps and results
+  * `jobs.json` - Maintains the current configuration of all created jobs including default arguments
+  * `history.json` - Records comprehensive execution history with timestamps, results, and arguments used
 
 ---
 
@@ -83,8 +95,10 @@ TaskFlow follows a modular organization for better maintainability and scalabili
 1. Open the UI in your browser.
 2. Click on "Add Job" to create a new script execution task.
 3. Define a name for your job, select the script type, add your script content, and set the execution interval.
-4. Save the job to schedule automatic execution.
-5. Monitor logs for execution history and errors.
+4. Add default arguments that will be passed to your script during execution.
+5. Save the job to schedule automatic execution.
+6. Use the "Run" page to execute jobs on-demand with custom arguments.
+7. Monitor logs for execution history, errors, and arguments used.
 
 ---
 
@@ -93,8 +107,10 @@ TaskFlow follows a modular organization for better maintainability and scalabili
 TaskFlow's interface allows you to easily configure your script execution preferences:
 
 - Define script execution intervals directly via the UI
+- Set default command-line arguments for your scripts
+- Override arguments during manual execution
 - Manage active jobs and disable them when needed
-- View execution logs directly within the application
+- View execution logs with argument details directly within the application
 
 ---
 
