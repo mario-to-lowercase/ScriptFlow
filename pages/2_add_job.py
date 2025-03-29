@@ -2,7 +2,7 @@ import streamlit as st
 
 # Set page configuration - this must be the first Streamlit command
 st.set_page_config(
-    page_title="Create Job - ScriptFlow",
+    page_title="Create Job - TaskFlow",
     page_icon="⏱️",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -79,6 +79,9 @@ def main():
         st.session_state.interval_unit = "minutes"
     if 'job_enabled' not in st.session_state:
         st.session_state.job_enabled = True
+    # Add default arguments session state
+    if 'script_arguments' not in st.session_state:
+        st.session_state.script_arguments = ""
 
     # Check if we should show the form or success message
     if not st.session_state.job_just_created:
@@ -97,6 +100,8 @@ def main():
                 st.session_state.interval_value = template.get("interval", 1)
                 st.session_state.interval_unit = template.get("interval-unit", "minutes")
                 st.session_state.job_enabled = template.get("enabled", True)
+                # Add support for default arguments in templates
+                st.session_state.script_arguments = template.get("default-arguments", "")
         
         # Template selector outside the form
         st.selectbox(
@@ -153,13 +158,29 @@ def main():
                 key="job_enabled"
             )
             
+            # Add a field for default arguments
+            script_arguments = st.text_input(
+                "Default Arguments",
+                value=st.session_state.script_arguments,
+                help="Space-separated arguments to pass to the script when executed",
+                key="script_arguments"
+            )
+            
             # Submit button
             submit = st.form_submit_button("Create Job", use_container_width=True)
             
             if submit:
                 if name and script_content:
-                    # Add the job and get its ID
-                    job_id = add_job(name, script_content, script_type, interval_value, interval_unit, enabled)
+                    # Add the job and get its ID with the new arguments parameter
+                    job_id = add_job(
+                        name, 
+                        script_content, 
+                        script_type, 
+                        interval_value, 
+                        interval_unit, 
+                        enabled,
+                        script_arguments  # Pass the arguments to add_job
+                    )
                     
                     # Store the ID of the newly created job to auto-expand it on the jobs page
                     st.session_state.newly_added_job = job_id
@@ -168,13 +189,10 @@ def main():
                     st.session_state.job_just_created = True
                     st.session_state.created_job_name = name
                     
-                    # Reset form fields
-                    st.session_state.job_name = ""
-                    st.session_state.script_type = "py"
-                    st.session_state.script_content = ""
-                    st.session_state.interval_value = 1
-                    st.session_state.interval_unit = "minutes"
-                    st.session_state.job_enabled = True
+                    # Instead of modifying session state values directly, create a new flag
+                    # to indicate we need to reset form values on the next render
+                    if 'reset_form_values' not in st.session_state:
+                        st.session_state.reset_form_values = True
                     
                     # Rerun the app to show the success message instead of the form
                     st.rerun()
@@ -191,6 +209,18 @@ def main():
                 # Reset the session state and rerun to show the form again
                 st.session_state.job_just_created = False
                 st.session_state.created_job_name = ""
+                
+                # Reset the form values when returning to create another job
+                if 'reset_form_values' in st.session_state and st.session_state.reset_form_values:
+                    # Use the del operator to remove session state keys instead of setting them to empty
+                    # This allows the default values to be applied when widgets are recreated
+                    for key in ['job_name', 'script_type', 'script_content', 'interval_value', 
+                               'interval_unit', 'job_enabled', 'script_arguments']:
+                        if key in st.session_state:
+                            del st.session_state[key]
+                    
+                    st.session_state.reset_form_values = False
+                
                 st.rerun()
         
         with col2:

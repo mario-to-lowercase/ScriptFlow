@@ -6,7 +6,7 @@ import re
 
 # Set page configuration - this must be the first Streamlit command
 st.set_page_config(
-    page_title="Templates - ScriptFlow",
+    page_title="Templates - TaskFlow",
     page_icon="📝",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -100,6 +100,9 @@ def main():
         st.session_state.template_interval_unit = "minutes"
     if 'template_enabled' not in st.session_state:
         st.session_state.template_enabled = False
+    # Add default arguments session state
+    if 'template_arguments' not in st.session_state:
+        st.session_state.template_arguments = ""
     
     # Check if we need to reset the form
     if 'reset_template_form' not in st.session_state:
@@ -113,6 +116,7 @@ def main():
         st.session_state.template_interval_value = 1
         st.session_state.template_interval_unit = "minutes"
         st.session_state.template_enabled = False
+        st.session_state.template_arguments = ""  # Reset default arguments
         st.session_state.reset_template_form = False
     
     # Show success/info message when template was created or deleted
@@ -140,10 +144,15 @@ def main():
                     interval_unit = template_data.get('interval-unit', template_data.get('intertval-unit', 'minutes'))
                     enabled = template_data.get('enabled', False)
                     script_content = template_data.get('script-content', '')
+                    # Add display for default arguments
+                    arguments = template_data.get('script-arguments', '')
                     
                     st.markdown(f"**Script Type:** {script_type}")
                     st.markdown(f"**Interval:** {interval} {interval_unit}")
                     st.markdown(f"**Enabled by default:** {enabled}")
+                    # Display default arguments if they exist
+                    if arguments:
+                        st.markdown(f"**Script Arguments:** `{arguments}`")
                     
                     # Show/hide script content
                     show_script = st.toggle("Show Script Content", key=f"toggle_{template_name}")
@@ -205,6 +214,14 @@ def main():
                 key="template_enabled"
             )
             
+            # Add field for default arguments
+            arguments = st.text_input(
+                "Script Arguments",
+                value=st.session_state.template_arguments,
+                help="Space-separated arguments to pass to the script when executed",
+                key="template_arguments"
+            )
+            
             # Submit button
             submit = st.form_submit_button("Create Template", use_container_width=True)
             
@@ -217,7 +234,8 @@ def main():
                         "script-content": script_content,
                         "interval": interval_value,
                         "interval-unit": interval_unit,
-                        "enabled": enabled
+                        "enabled": enabled,
+                        "script-arguments": arguments  # Add default arguments to template
                     }
                     
                     # Save the template

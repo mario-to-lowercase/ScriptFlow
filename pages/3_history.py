@@ -14,7 +14,7 @@ from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode, DataReturnMode
 
 # Set page configuration
 st.set_page_config(
-    page_title="History - ScriptFlow",
+    page_title="History - TaskFlow",
     page_icon="⏱️",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -69,11 +69,16 @@ def main():
             timestamp = history['timestamp'].strftime('%Y-%m-%d %H:%M:%S')
             status = "✅ Success" if history['success'] else "❌ Failed"
             
+            # Get arguments if they exist, otherwise show empty string
+            arguments = history.get('arguments', '')
+            
             history_data.append({
                 "id": i,  # Add an ID for reference
                 "Job Name": job_name,
                 "Timestamp": timestamp,
                 "Status": status,
+                # Add arguments to history display (truncated if too long)
+                "Arguments": arguments[:30] + ('...' if len(arguments) > 30 else '')
             })
         
         # Create DataFrame for display
@@ -123,8 +128,8 @@ def main():
             # Display execution details
             st.subheader("Execution Details")
             
-            # Create 3 columns for the metadata
-            col1, col2, col3 = st.columns(3)
+            # Create 4 columns for the metadata (adding the Arguments column)
+            col1, col2, col3, col4 = st.columns(4)
             
             with col1:
                 st.markdown("**Job Name**")
@@ -139,6 +144,12 @@ def main():
                 status_color = "green" if selected_history['success'] else "red"
                 status_text = "Success" if selected_history['success'] else "Failed"
                 st.markdown(f"<span style='color:{status_color};'>{status_text}</span>", unsafe_allow_html=True)
+            
+            # Add a column for arguments
+            with col4:
+                st.markdown("**Arguments**")
+                arguments = selected_history.get('arguments', '')
+                st.markdown(f"`{arguments}`" if arguments else "No arguments")
             
             # Create tabs for output and error
             tab1, tab2 = st.tabs(["Output", "Error"])

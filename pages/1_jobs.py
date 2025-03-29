@@ -11,7 +11,7 @@ from app import status_indicator, save_data, get_script_content, execute_script,
 
 # Set page configuration
 st.set_page_config(
-    page_title="All Jobs - ScriptFlow",
+    page_title="All Jobs - TaskFlow",
     page_icon="⏱️",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -127,6 +127,13 @@ def main():
                         
                         enabled = st.checkbox("Enabled", value=edit_job['enabled'])
                         
+                        # Add default arguments field
+                        script_arguments = st.text_input(
+                            "Default Arguments", 
+                            value=edit_job.get('script_arguments', ''),
+                            help="Space-separated arguments to pass to the script when executed"
+                        )
+                        
                         col1, col2 = st.columns(2)
                         with col1:
                             submit = st.form_submit_button("Update Job", use_container_width=True)
@@ -147,7 +154,8 @@ def main():
                                 script_type,
                                 interval_value,
                                 interval_unit,
-                                enabled
+                                enabled,
+                                script_arguments
                             ):
                                 # Set a flag to show success message outside the form
                                 st.session_state.job_updated = name
@@ -158,8 +166,6 @@ def main():
         
         # Only show the job list if not in edit mode
         if 'show_edit_form' not in st.session_state or not st.session_state.show_edit_form:
-            jobs_container = st.container()
-            
             col1, col2 = st.columns(2)
             with col1:
                 if st.button("Back", use_container_width=True):
@@ -169,96 +175,104 @@ def main():
                 if st.button("➕ Create new Job", use_container_width=True):
                     st.switch_page("pages/2_add_job.py")
             
-            with jobs_container:
-                # Create a container for each job
-                for job in st.session_state.jobs:
-                    # Check if this is the newly added job to auto-expand it
-                    default_expanded = 'newly_added_job' in st.session_state and job['id'] == st.session_state.newly_added_job
-                    
-                    # Create a container for each job with status emoji in the title
-                    with st.expander(f"{status_indicator(job['enabled'], use_emoji=True)}{job['name']} ({job['script_type']})", expanded=default_expanded):
-                        # If this was a newly added job, clear the flag after expanding it
-                        if default_expanded:
-                            # Clear the flag after this render cycle
-                            del st.session_state.newly_added_job
-                        
-                        # Additional status indicator inside with more details
-                        # status_text = "Enabled" if job['enabled'] else "Disabled"
-                        # st.markdown(f"{status_indicator(job['enabled'])} **Status: {status_text}**", unsafe_allow_html=True)
-                        
-                        col1, col2 = st.columns([3, 1])
-                        
-                        with col1:
-                            st.write(f"**Interval:** Every {job['interval_value']} {job['interval_unit']}")
-                            
-                            if job['last_run']:
-                                st.write(f"**Last Run:** {job['last_run'].strftime('%Y-%m-%d %H:%M:%S')}")
-                            else:
-                                st.write("**Last Run:** Never")
-                            
-                            if job['enabled'] and job['id'] in st.session_state.next_run_times:
-                                st.write(f"**Next Run:** {st.session_state.next_run_times[job['id']].strftime('%Y-%m-%d %H:%M:%S')}")
-                            else:
-                                st.write("**Next Run:** Disabled")
-                        
-                        with col2:
-                            # Use 4-column layout for buttons
-                            button_cols = st.columns(4)
-                            
-                            with button_cols[0]:
-                                if st.button("Run", key=f"run_{job['id']}", use_container_width=True):
-                                    success, output = execute_script(job['id'], job['script_path'], job['script_type'])
-                                    if success:
-                                        st.success("Job executed successfully!")
-                                    else:
-                                        st.error(f"Job execution failed: {output}")
-                                    
-                                    # Update last run time
-                                    for i, j in enumerate(st.session_state.jobs):
-                                        if j['id'] == job['id']:
-                                            st.session_state.jobs[i]['last_run'] = datetime.datetime.now()
-                                            break
-                                    
-                                    # Save data
-                                    save_data()
-                            
-                            with button_cols[1]:
-                                status_btn_text = "Disable" if job['enabled'] else "Enable"
-                                if st.button(status_btn_text, key=f"toggle_{job['id']}", use_container_width=True):
-                                    if toggle_job_status(job['id']):
-                                        st.success(f"Job {status_btn_text.lower()}d successfully!")
-                                        st.rerun()
-                            
-                            with button_cols[2]:
-                                if st.button("History", key=f"history_{job['id']}", use_container_width=True):
-                                    st.switch_page("pages/3_history.py")
-                                    st.rerun()
-                            
-                            with button_cols[3]:
-                                if st.button("Edit", key=f"edit_{job['id']}", use_container_width=True):
-                                    st.session_state.edit_job_id = job['id']
-                                    st.session_state.edit_job_content = get_script_content(job['script_path'])
-                                    st.session_state.show_edit_form = True
-                                    st.rerun()
-                            
-                            # Use the same column for delete button
-                            with button_cols[3]:
-                                if st.button("Delete", key=f"delete_{job['id']}", use_container_width=True):
-                                    if delete_job(job['id']):
-                                        st.success("Job deleted successfully!")
-                                        st.rerun()
-                        
-                        # Show script content
-                        st.markdown("---")
-                        st.subheader("Script Content")
-                        script_content = get_script_content(job['script_path'])
-                        st.code(script_content, language=job['script_type'])
-            
-            # Show success message outside the form
+            # Show success message after job update
             if 'job_updated' in st.session_state:
                 st.success(f"Job '{st.session_state.job_updated}' updated successfully!")
                 # Clear the flag after displaying the message
                 del st.session_state.job_updated
+            
+            # Show script execution result if available
+            if 'run_success' in st.session_state:
+                if st.session_state.run_success:
+                    st.success("Job executed successfully!")
+                    if st.session_state.run_output:
+                        with st.expander("Show Output", expanded=True):
+                            st.code(st.session_state.run_output)
+                else:
+                    st.error("Job execution failed!")
+                    with st.expander("Show Error", expanded=True):
+                        st.code(st.session_state.run_output)
+                
+                # Clear the execution result after displaying it
+                del st.session_state.run_success
+                del st.session_state.run_output
+            
+            # Jobs list container
+            jobs_container = st.container()
+            
+            # Create a container for each job
+            for job in st.session_state.jobs:
+                # Check if this is the newly added job to auto-expand it
+                default_expanded = 'newly_added_job' in st.session_state and job['id'] == st.session_state.newly_added_job
+                
+                # Create a container for each job with status emoji in the title
+                with st.expander(f"{status_indicator(job['enabled'], use_emoji=True)}{job['name']} ({job['script_type']})", expanded=default_expanded):
+                    # If this was a newly added job, clear the flag after expanding it
+                    if default_expanded:
+                        # Clear the flag after this render cycle
+                        del st.session_state.newly_added_job
+                    
+                    col1, col2 = st.columns([3, 1])
+                    
+                    with col1:
+                        st.write(f"**Interval:** Every {job['interval_value']} {job['interval_unit']}")
+                        
+                        if job['last_run']:
+                            st.write(f"**Last Run:** {job['last_run'].strftime('%Y-%m-%d %H:%M:%S')}")
+                        else:
+                            st.write("**Last Run:** Never")
+                        
+                        if job['enabled'] and job['id'] in st.session_state.next_run_times:
+                            st.write(f"**Next Run:** {st.session_state.next_run_times[job['id']].strftime('%Y-%m-%d %H:%M:%S')}")
+                        else:
+                            st.write("**Next Run:** Disabled")
+                        
+                        # Show default arguments if they exist
+                        if 'script_arguments' in job and job['script_arguments']:
+                            st.write(f"**Default Arguments:** `{job['script_arguments']}`")
+                    
+                    with col2:
+                        # Use 4-column layout for buttons
+                        button_cols = st.columns(4)
+                        
+                        with button_cols[0]:
+                            if st.button("Run", key=f"run_{job['id']}", use_container_width=True):
+                                # Store job info in session state for the run page
+                                st.session_state.run_job_id = job['id']
+                                # Redirect to the run page
+                                st.switch_page("pages/5_run.py")
+                        
+                        with button_cols[1]:
+                            status_btn_text = "Disable" if job['enabled'] else "Enable"
+                            if st.button(status_btn_text, key=f"toggle_{job['id']}", use_container_width=True):
+                                if toggle_job_status(job['id']):
+                                    st.success(f"Job {status_btn_text.lower()}d successfully!")
+                                    st.rerun()
+                        
+                        with button_cols[2]:
+                            if st.button("History", key=f"history_{job['id']}", use_container_width=True):
+                                st.switch_page("pages/3_history.py")
+                                st.rerun()
+                        
+                        with button_cols[3]:
+                            if st.button("Edit", key=f"edit_{job['id']}", use_container_width=True):
+                                st.session_state.edit_job_id = job['id']
+                                st.session_state.edit_job_content = get_script_content(job['script_path'])
+                                st.session_state.show_edit_form = True
+                                st.rerun()
+                        
+                        # Use the same column for delete button
+                        with button_cols[3]:
+                            if st.button("Delete", key=f"delete_{job['id']}", use_container_width=True):
+                                if delete_job(job['id']):
+                                    st.success("Job deleted successfully!")
+                                    st.rerun()
+                    
+                    # Show script content
+                    st.markdown("---")
+                    st.subheader("Script Content")
+                    script_content = get_script_content(job['script_path'])
+                    st.code(script_content, language=job['script_type'])
 
 # Run the page
 if __name__ == "__main__":

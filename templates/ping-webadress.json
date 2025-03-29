@@ -1,0 +1,9 @@
+{
+    "name": "Ping Webadress",
+    "script-type": "py",
+    "script-content": "import os\nimport platform\nimport sys\n\ndef ping_address(address=\"google.com\"):\n    # Determine the correct ping command based on the OS\n    param = \"-n 1\" if platform.system().lower() == \"windows\" else \"-c 1\"\n    # Run the ping command\n    response = os.system(f\"ping {param} {address}\")\n    # Check the response\n    if response == 0:\n        print(f\"{address} is reachable.\")\n    else:\n        print(f\"{address} is not reachable.\")\n\nif __name__ == \"__main__\":\n    # Use command line argument if provided, otherwise default to google.com\n    if len(sys.argv) > 1:\n        ping_address(sys.argv[1])\n    else:\n        ping_address()",
+    "interval": 1,
+    "interval-unit": "minutes",
+    "enabled": false,
+    "default-arguments": "youtube.com"
+}

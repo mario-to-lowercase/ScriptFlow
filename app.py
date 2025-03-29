@@ -111,8 +111,11 @@ def check_scheduled_jobs():
         
         # Check if it's time to run the job
         if job_id in st.session_state.next_run_times and now >= st.session_state.next_run_times[job_id]:
-            # Execute the job
-            success, output = execute_script(job_id, job['script_path'], job['script_type'])
+            # Get the default arguments (if they exist)
+            script_arguments = job.get('script_arguments', "")
+            
+            # Execute the job with default arguments
+            success, output = execute_script(job_id, job['script_path'], job['script_type'], script_arguments)
             jobs_executed = True
             
             # Update last run time
@@ -129,33 +132,37 @@ def check_scheduled_jobs():
         save_data()
 
 # Function to execute a script
-def execute_script(job_id, script_path, script_type):
+def execute_script(job_id, script_path, script_type, arguments=None):
     try:
+        # Build command with arguments if provided
+        if arguments is None:
+            arguments = ""
+        
         if script_type == 'py':
-            result = subprocess.run(['python', script_path], capture_output=True, text=True)
+            result = subprocess.run(['python', script_path] + arguments.split(), capture_output=True, text=True)
         elif script_type == 'sh':
-            result = subprocess.run(['bash', script_path], capture_output=True, text=True)
+            result = subprocess.run(['bash', script_path] + arguments.split(), capture_output=True, text=True)
         elif script_type == 'php':
-            result = subprocess.run(['php', script_path], capture_output=True, text=True)
+            result = subprocess.run(['php', script_path] + arguments.split(), capture_output=True, text=True)
         elif script_type == 'js':
-            result = subprocess.run(['node', script_path], capture_output=True, text=True)
+            result = subprocess.run(['node', script_path] + arguments.split(), capture_output=True, text=True)
         elif script_type == 'rb':
-            result = subprocess.run(['ruby', script_path], capture_output=True, text=True)
+            result = subprocess.run(['ruby', script_path] + arguments.split(), capture_output=True, text=True)
         elif script_type == 'pl':
-            result = subprocess.run(['perl', script_path], capture_output=True, text=True)
+            result = subprocess.run(['perl', script_path] + arguments.split(), capture_output=True, text=True)
         elif script_type == 'ps1':
-            result = subprocess.run(['powershell', '-File', script_path], capture_output=True, text=True)
+            result = subprocess.run(['powershell', '-File', script_path] + arguments.split(), capture_output=True, text=True)
         elif script_type == 'bat' or script_type == 'cmd':
-            result = subprocess.run([script_path], shell=True, capture_output=True, text=True)
+            result = subprocess.run([script_path] + arguments.split(), shell=True, capture_output=True, text=True)
         elif script_type == 'r':
-            result = subprocess.run(['Rscript', script_path], capture_output=True, text=True)
+            result = subprocess.run(['Rscript', script_path] + arguments.split(), capture_output=True, text=True)
         elif script_type == 'lua':
-            result = subprocess.run(['lua', script_path], capture_output=True, text=True)
+            result = subprocess.run(['lua', script_path] + arguments.split(), capture_output=True, text=True)
         elif script_type == 'go':
-            result = subprocess.run(['go', 'run', script_path], capture_output=True, text=True)
+            result = subprocess.run(['go', 'run', script_path] + arguments.split(), capture_output=True, text=True)
         elif script_type == 'sql':
             # Generic SQL execution - would need to be customized for specific DB engines
-            result = subprocess.run(['sqlite3', '-init', script_path, ':memory:', '.exit'], capture_output=True, text=True)
+            result = subprocess.run(['sqlite3', '-init', script_path, ':memory:', '.exit'] + arguments.split(), capture_output=True, text=True)
         else:
             return False, f"Unsupported script type: {script_type}"
         
@@ -165,7 +172,8 @@ def execute_script(job_id, script_path, script_type):
             'timestamp': datetime.datetime.now(),
             'success': result.returncode == 0,
             'output': result.stdout,
-            'error': result.stderr
+            'error': result.stderr,
+            'arguments': arguments  # Store the arguments that were used
         })
         
         # Save history data
@@ -181,7 +189,8 @@ def execute_script(job_id, script_path, script_type):
             'timestamp': datetime.datetime.now(),
             'success': False,
             'output': '',
-            'error': error_message
+            'error': error_message,
+            'arguments': arguments  # Store the arguments that were used
         })
         
         # Save history data
@@ -218,7 +227,7 @@ def get_script_content(script_path):
         return "Error reading script content."
 
 # Function to add a new job
-def add_job(name, script_content, script_type, interval_value, interval_unit, enabled=True):
+def add_job(name, script_content, script_type, interval_value, interval_unit, enabled=True, script_arguments=""):
     # Convert interval to seconds
     interval_seconds = interval_value
     if interval_unit == "minutes":
@@ -240,12 +249,13 @@ def add_job(name, script_content, script_type, interval_value, interval_unit, en
         'name': name,
         'script_path': str(script_path),
         'script_type': script_type,
-        'interval_value': interval_value,  # Add this field
-        'interval_unit': interval_unit,    # Add this field
+        'interval_value': interval_value,
+        'interval_unit': interval_unit,
         'interval_seconds': interval_seconds,
         'created_at': datetime.datetime.now(),
         'last_run': None,
-        'enabled': enabled
+        'enabled': enabled,
+        'script_arguments': script_arguments  # Add default arguments field
     }
     
     # Add the job to the session state
@@ -261,7 +271,7 @@ def add_job(name, script_content, script_type, interval_value, interval_unit, en
     return job_id
 
 # Function to update an existing job
-def update_job(job_id, name, script_content, script_type, interval_value, interval_unit, enabled):
+def update_job(job_id, name, script_content, script_type, interval_value, interval_unit, enabled, script_arguments=""):
     try:
         # Find the job to update
         job_index = None
@@ -303,10 +313,11 @@ def update_job(job_id, name, script_content, script_type, interval_value, interv
         st.session_state.jobs[job_index]['name'] = name
         st.session_state.jobs[job_index]['script_path'] = str(script_path)
         st.session_state.jobs[job_index]['script_type'] = script_type
-        st.session_state.jobs[job_index]['interval_value'] = interval_value  # Add this field
-        st.session_state.jobs[job_index]['interval_unit'] = interval_unit    # Add this field
+        st.session_state.jobs[job_index]['interval_value'] = interval_value
+        st.session_state.jobs[job_index]['interval_unit'] = interval_unit
         st.session_state.jobs[job_index]['interval_seconds'] = interval_seconds
         st.session_state.jobs[job_index]['enabled'] = enabled
+        st.session_state.jobs[job_index]['script_arguments'] = script_arguments  # Add default arguments
         
         # Update next run time if enabled
         if enabled:
@@ -336,7 +347,7 @@ def custom_metric(label, value, color):
 def main():
     # Set page configuration - this is now inside the main function
     st.set_page_config(
-        page_title="ScriptFlow",
+        page_title="TaskFlow",
         page_icon="⏱️",
         layout="wide",
         initial_sidebar_state="collapsed"
