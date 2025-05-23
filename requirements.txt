@@ -253,7 +253,7 @@ tenacity==9.0.0
 thresh==1.1.1
 tifffile==2023.9.26
 toml==0.10.2
-tornado==6.4.2
+tornado==6.5.1
 traitlets==5.10.1
 typing_extensions==4.12.2
 tzdata==2024.2
