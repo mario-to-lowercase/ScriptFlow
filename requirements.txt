@@ -67,7 +67,7 @@ pure-eval==0.2.2
 pyarrow==19.0.1
 pyatv==0.13.2
 PyAutoGUI==0.9.54
-pycares==4.3.0
+pycares==4.9.0
 pycparser==2.21
 pydeck==0.9.1
 PyGetWindow==0.0.9
